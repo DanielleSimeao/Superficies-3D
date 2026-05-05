@@ -1,94 +1,250 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Superfícies 3D</title>
+  <title>Visualizador 3D | Superfícies Sísmicas Interpretadas</title>
 
   <script type="module"
     src="https://unpkg.com/@google/model-viewer@3.4.0/dist/model-viewer.min.js">
   </script>
 
   <style>
+    :root {
+      --azul-escuro: #1f3a5f;
+      --cinza-claro: #f4f6f8;
+      --cinza-medio: #d9dee5;
+      --texto: #222;
+      --branco: #ffffff;
+    }
+
     body {
       margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--cinza-claro);
+      color: var(--texto);
       overflow: hidden;
-      font-family: Arial, sans-serif;
     }
 
-    /* Eixo XYZ fixo no canto inferior direito */
-    #axis {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      width: 200px;
-      height: 200px;
-      pointer-events: none; /* bloqueia interação */
+    /* Cabeçalho acadêmico */
+    header {
+      background: var(--azul-escuro);
+      color: var(--branco);
+      padding: 14px 24px;
+      border-bottom: 4px solid #8aa4c2;
     }
 
-    /* Mapa fixo no canto superior direito */
-    #map {
-      position: absolute;
-      top: 20px;
-      right: 20px;       /* canto superior direito */
-      width: 300px;      /* tamanho maior */
-      height: auto;
-      border: 1px solid #ccc;
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 4px 0 0 0;
+      font-size: 13px;
+      opacity: 0.95;
+    }
+
+    /* Área geral */
+    #layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      padding: 16px;
+      height: calc(100vh - 128px);
+      box-sizing: border-box;
+    }
+
+    /* Painel principal do modelo */
+    #viewer-card {
+      background: var(--branco);
+      border: 1px solid var(--cinza-medio);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #toolbar {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--cinza-medio);
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #toolbar label {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    select {
+      padding: 6px 10px;
+      font-size: 14px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
       background: white;
-      padding: 5px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.2);
-      z-index: 10;
-      overflow: hidden;
+    }
+
+    #surface-title {
+      margin-left: auto;
+      font-size: 13px;
+      color: #555;
+      font-weight: bold;
+    }
+
+    model-viewer#surface {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+    }
+
+    /* Painel lateral */
+    aside {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--branco);
+      border: 1px solid var(--cinza-medio);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      padding: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px 0;
+      font-size: 15px;
+      color: var(--azul-escuro);
+      border-bottom: 1px solid var(--cinza-medio);
+      padding-bottom: 6px;
     }
 
     #map img {
       width: 100%;
       display: block;
-      transition: transform 0.2s ease; /* animação do zoom */
+      border: 1px solid #ddd;
       cursor: grab;
+      transition: transform 0.2s ease;
     }
 
     #map img:active {
       cursor: grabbing;
     }
 
-    #map small {
-      display: block;
-      text-align: center;
-      margin-bottom: 5px;  /* espaço entre legenda e imagem */
+    .info-list {
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 0;
+      padding-left: 16px;
+    }
+
+    .note {
       font-size: 12px;
-      color: #333;
-      font-weight: bold;
+      line-height: 1.4;
+      color: #444;
+      margin: 0;
+    }
+
+    /* Eixo XYZ fixo */
+    #axis {
+      position: absolute;
+      bottom: 42px;
+      right: 365px;
+      width: 150px;
+      height: 150px;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    /* Rodapé */
+    footer {
+      height: 36px;
+      background: #ffffff;
+      border-top: 1px solid var(--cinza-medio);
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      font-size: 12px;
+      color: #444;
+      box-sizing: border-box;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Seleção de superfície -->
-  <div style="padding:10px;">
-    <b>Escolha a superfície:</b>
-    <select onchange="document.getElementById('surface').src = this.value">
-      <option value="model/Embasamento_sismico.glb">Embasamento sismico</option>
-      <option value="model/Topo_Rifte.glb">Topo do Rifte</option>
-      <option value="model/topo_Sal.glb">Topo do Sal</option>
-      <option value="model/Topo_Albiano.glb">Topo do Albiano</option>
-      <option value="model/Topo_Santoniano.glb">Topo do Santoniano</option>
-      <option value="model/Topo_Campaniano.glb">Topo do Campaniano</option>
-      <option value="model/Topo_Maastrichtiano.glb">Topo do Maastrichtiano</option>
-      <option value="model/Topo_Eoceno.glb">Topo do Eoceno</option>
-      <option value="model/Topo_Mioceno.glb">Topo do Mioceno</option>
-      <option value="model/Fundo_do_mar.glb">Fundo do Mar</option>
+  <header>
+    <h1>Visualizador 3D das superfícies sísmicas interpretadas</h1>
+    <p>Bacia de Santos – Porção centro-norte | Dissertação de Mestrado | Danielle Simeão Silvério Rocha</p>
+  </header>
 
-    </select>
-  </div>
+  <main id="layout">
 
-  <!-- SUPERFÍCIE 3D -->
-  <model-viewer
-    id="surface"
-    src="model/Embasamento_sismico.glb"
-    camera-controls
-    style="width:100%; height:80vh;">
-  </model-viewer>
+    <!-- ÁREA PRINCIPAL -->
+    <section id="viewer-card">
+
+      <div id="toolbar">
+        <label for="surfaceSelect">Selecione o horizonte sísmico interpretado:</label>
+
+        <select id="surfaceSelect" onchange="trocarSuperficie(this)">
+          <option value="model/Embasamento_sismico.glb" data-title="Topo do Embasamento Sísmico">Topo do Embasamento Sísmico</option>
+          <option value="model/Topo_Rifte.glb" data-title="Topo da Fase Rifte">Topo da Fase Rifte</option>
+          <option value="model/topo_Sal.glb" data-title="Topo do Sal">Topo do Sal</option>
+          <option value="model/Topo_Albiano.glb" data-title="Topo do Albiano">Topo do Albiano</option>
+          <option value="model/Topo_Santoniano.glb" data-title="Topo do Santoniano">Topo do Santoniano</option>
+          <option value="model/Topo_Campaniano.glb" data-title="Topo do Campaniano">Topo do Campaniano</option>
+          <option value="model/Topo_Maastrichtiano.glb" data-title="Topo do Maastrichtiano">Topo do Maastrichtiano</option>
+          <option value="model/Topo_Eoceno.glb" data-title="Topo do Eoceno">Topo do Eoceno</option>
+          <option value="model/Topo_Mioceno.glb" data-title="Topo do Mioceno">Topo do Mioceno</option>
+          <option value="model/Fundo_do_mar.glb" data-title="Fundo do Mar">Fundo do Mar</option>
+        </select>
+
+        <span id="surface-title">Horizonte selecionado: Topo do Embasamento Sísmico</span>
+      </div>
+
+      <model-viewer
+        id="surface"
+        src="model/Embasamento_sismico.glb"
+        camera-controls
+        interaction-prompt="auto"
+        ar="false">
+      </model-viewer>
+
+    </section>
+
+    <!-- PAINEL LATERAL -->
+    <aside>
+
+      <div class="card" id="map">
+        <h2>Mapa de localização</h2>
+        <img src="loc.png" alt="Mapa de localização da área de estudo">
+      </div>
+
+      <div class="card">
+        <h2>Informações do modelo</h2>
+        <ul class="info-list">
+          <li><strong>Área:</strong> porção centro-norte da Bacia de Santos</li>
+          <li><strong>Dados:</strong> sísmica 2D/3D e dados de poços</li>
+          <li><strong>Interpretação:</strong> OpendTect 7.0</li>
+          <li><strong>Finalidade:</strong> visualização acadêmica das superfícies interpretadas</li>
+          <li><strong>Sistema de referência:</strong> SIRGAS 2000</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Instruções de navegação</h2>
+        <p class="note">
+          Use o mouse para rotacionar, aproximar e deslocar o modelo 3D.
+          Utilize o seletor superior para alternar entre os horizontes sísmicos interpretados.
+        </p>
+      </div>
+
+    </aside>
+
+  </main>
 
   <!-- EIXO XYZ -->
   <model-viewer
@@ -101,29 +257,37 @@
     disable-pan>
   </model-viewer>
 
-  <!-- MAPA FIXO -->
-  <div id="map">
-    <small>Mapa de localização</small>
-    <img src="loc.png" alt="Mapa de localização">
-  </div>
+  <footer>
+    Fonte dos dados: BDEP/ANP. Superfícies interpretadas pela autora no software OpendTect 7.0. Visualização 3D desenvolvida para fins acadêmicos.
+  </footer>
 
-  <!-- SCRIPT DO ZOOM -->
   <script>
+    function trocarSuperficie(select) {
+      const surface = document.getElementById('surface');
+      const title = document.getElementById('surface-title');
+      const selectedOption = select.options[select.selectedIndex];
+
+      surface.src = select.value;
+      title.textContent = 'Horizonte selecionado: ' + selectedOption.dataset.title;
+    }
+
+    // Zoom simples no mapa de localização
     const mapImg = document.querySelector('#map img');
     let scale = 1;
 
     mapImg.addEventListener('wheel', function(e) {
       e.preventDefault();
+
       if (e.deltaY < 0) {
-        scale += 0.1; // zoom in
+        scale += 0.1;
       } else {
-        scale = Math.max(0.5, scale - 0.1); // zoom out mínimo 0.5x
+        scale = Math.max(0.7, scale - 0.1);
       }
+
       mapImg.style.transform = `scale(${scale})`;
     });
   </script>
 
 </body>
 </html>
-
 
