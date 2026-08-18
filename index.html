@@ -28,28 +28,31 @@
     
 
     /* Cabeçalho acadêmico */
-    header {
-      background: var(--azul-escuro);
-      color: var(--branco);
+  header {
+      background: var(--branco);
+      color: var(--azul-escuro);
       padding: 14px 24px;
-      border-bottom: 4px solid #8aa4c2;
+      border-bottom: 4px solid var(--azul-escuro);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-    }
+}
 
     .header-text h1 {
       margin: 0;
       font-size: 20px;
       font-weight: 700;
-    }
+      color: var(--azul-escuro);
+}
 
-    .header-text p {
+  .header-text p {
       margin: 4px 0 0 0;
       font-size: 13px;
-      opacity: 0.95;
-    }
+      color: #43566f;
+      opacity: 1;
+}
 
     .header-logos {
       display: flex;
@@ -58,15 +61,15 @@
       flex-shrink: 0;
     }
 
-    .header-logos img {
-      max-height: 55px;
-      max-width: 160px;
-      background: white;
-      padding: 5px;
+   .header-logos img {
+      height: 50px;
+      width: auto;
+      max-width: 145px;
+      background: transparent;
+      padding: 4px;
       border-radius: 4px;
       object-fit: contain;
-    }
-
+  }
     /* Área geral */
     #layout {
       display: grid;
@@ -210,10 +213,15 @@
         align-items: flex-start;
       }
 
-      .header-logos img {
-        max-height: 45px;
-        max-width: 130px;
-      }
+    .header-logos img {
+      height: 50px;
+      width: auto;
+      max-width: 145px;
+      background: white;
+      padding: 5px;
+      border-radius: 4px;
+      object-fit: contain;
+    }
 
       #layout {
         grid-template-columns: 1fr;
@@ -248,11 +256,11 @@
       <p>Bacia de Santos – Porção centro-norte | Dissertação de Mestrado | Danielle Simeão Silverio Rocha</p>
     </div>
 
-    <div class="header-logos">
-      <img src="logo-unesp.png" alt="Logo UNESP">
-      <img src="logo-prh.png" alt="Logo PRH-ANP 40.1">
-    </div>
-  </header>
+   <div class="header-logos">
+  <img src="logo-unesp.png" alt="Logo UNESP">
+  <img src="logo-unespetro.jpg" alt="Logo UNESPetro">
+  <img src="logo-prh.png" alt="Logo PRH-ANP 40.1">
+</div>
 
   <main id="layout">
 
