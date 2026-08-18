@@ -22,8 +22,10 @@
       font-family: Arial, Helvetica, sans-serif;
       background: var(--cinza-claro);
       color: var(--texto);
-      overflow: hidden;
-    }
+      overflow-x: hidden;
+      overflow-y: auto;
+}
+    
 
     /* Cabeçalho acadêmico */
     header {
@@ -142,17 +144,17 @@
       padding-bottom: 6px;
     }
 
-    #map img {
+   #map {
+      overflow: hidden;
+}
+
+  #map img {
       width: 100%;
+      height: auto;
       display: block;
       border: 1px solid #ddd;
-      cursor: grab;
-      transition: transform 0.2s ease;
-    }
-
-    #map img:active {
-      cursor: grabbing;
-    }
+      box-sizing: border-box;
+}
 
     .info-list {
       font-size: 13px;
